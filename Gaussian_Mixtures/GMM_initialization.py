@@ -1,4 +1,3 @@
-# EECS 545 - Group Project
 # Author: Hui(Phoebe) Liang
 # Run one iteration of K-means to initialize means for Gaussian Mixture
 
@@ -75,46 +74,6 @@ def whiten(x, meanX=None, sigmaToMinusOneHalfX=None):
     xWhitened = np.dot((x - meanX), sigmaToMinusOneHalfX.A)
     return xWhitened, meanX, sigmaToMinusOneHalfX
 
-
-def extrctSubpatches(x, dChannel, IMAGE_DIM, wRFSize):
-    ''' extract overlapping sub-patches into rows of 'patches' '''
-    imgSz = np.prod(IMAGE_DIM[0:2])
-    ptc = list()
-    for dCnl in range(dChannel):
-        ptc.append(im2col(np.reshape(X[dCnl * imgSz: (dCnl + 1) * imgSz],IMAGE_DIM[0:2], order='F').T, [wRFSize, wRFSize]))
-    return np.concatenate(tuple(i for i in ptc), axis=0).T
-
-
-def reshapeAndPool(patches, kNum, IMAGE_DIM, wRFSize):
-    ''' first reshape to K-channel image, and then
-     pool over quadrants'''
-
-    # reshape to kNum-channel image
-    pRows = IMAGE_DIM[0] - wRFSize + 1
-    pCols = IMAGE_DIM[1] - wRFSize + 1
-    patches = np.reshape(patches, (pRows, pCols, kNum), order='F')
-
-    # pool over quadrants
-    halfR = int(round(pRows / 2.0))
-    halfC = int(round(pCols / 2.0))
-    q1 = np.sum(patches[:halfR, :halfC, :], axis=(0, 1))
-    q2 = np.sum(patches[halfR:, :halfC, :], axis=(0, 1))
-    q3 = np.sum(patches[:halfR, halfC:, :], axis=(0, 1))
-    q4 = np.sum(patches[halfR:, halfC:, :], axis=(0, 1))
-    return np.concatenate((q1, q2, q3, q4))
-
-
-def cmptTriangleActivation(patches, centroids):
-    ''' compute 'triangle' activation function when extracting the features
-    when using the method of KMeans'''
-    xx = np.sum(patches**2, axis=1)  # X^2; dim is
-    cc = np.sum(centroids**2, axis=1)
-    xc = np.dot(patches, centroids.T)
-    z = np.sqrt(cc + (xx.T - 2 * xc.T).T)  # distances
-    mu = np.mean(z, axis=1)  # average distance to centroids for each patch
-    return np.maximum((mu - z.T).T, 0)
-
-
 def extrctRdPtchs(trainX, dChannel, IMAGE_DIM, wRFSize, numRdmPtchs):
     ''' extract random patches'''
     numFtrRF = wRFSize * wRFSize * dChannel
@@ -160,12 +119,6 @@ x_train, y_train = load_train_data()
 train_X, test_X, train_Y, test_Y = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
 train_X, validation_X, train_Y, validation_Y = train_test_split(train_X, train_Y, test_size=0.2, random_state=1)
 
-np.save("train_X_phoebe.npy", train_X)
-np.save("train_Y_phoebe.npy", train_Y)
-np.save("validation_X_phoebe.npy", validation_X)
-np.save("validation_Y_phoebe.npy", validation_Y)
-np.save("test_X_phoebe.npy", test_X)
-np.save("test_Y_phoebe.npy", test_Y)
 
 # Initialize 
 
@@ -193,33 +146,26 @@ numFtrRF = wRFSize * wRFSize * dChannel
 # extract random patches and pre-process
 
 print ("patches processing")
-
 train_X = np.load("train_X_phoebe.npy")
 
 patches = extrctRdPtchs(train_X, dChannel, IMAGE_DIM, wRFSize, numRdmPtchs)
-np.save("patches_phoebe12000.npy", patches)
 
 print ("patches normalizing")
 patches_normalized = normalize(patches)
-np.save("patches_normal_phoebe12000.npy", patches_normalized)
 
 
 print ("patches whitening")
 # whiten
 if whitening:
     patches_whiten, meanPatches, sigmaToMinusOneHalfPatches = whiten(patches_normalized)
-np.save("patches_whiten_phoebe12000.npy", patches_whiten)
 
 
 print ("running kmeans")
-#kmeans = KMeans(n_clusters=numCentroidsKM, random_state=1, n_init=1).fit(patches_whiten)
-kmeans = KMeans(n_clusters=numCentroidsKM, random_state=1, n_init=1).fit(patches_normalized)
+kmeans = KMeans(n_clusters=numCentroidsKM, random_state=1, n_init=1).fit(patches_whiten)
 
 centers = kmeans.cluster_centers_
-np.save("kmeans_center_phoebe300.npy", centers)
 
 labels = kmeans.labels_
-np.save("kmeans_labels_phoebe300.npy", labels)
 
 
 

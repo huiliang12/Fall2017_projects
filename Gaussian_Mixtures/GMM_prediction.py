@@ -1,4 +1,3 @@
-# EECS 545 - Group Project
 # @ Author: Hui(Phoebe) Liang
 # Predict using learned parameters from Gaussian Mixture Model
 
@@ -109,44 +108,21 @@ def reshapeAndPool(patches, kNum, IMAGE_DIM, wRFSize):
     return np.concatenate((q1, q2, q3, q4))
 
 
-def extrctRdPtchs(trainX, dChannel, IMAGE_DIM, wRFSize, numRdmPtchs):
-    ''' extract random patches'''
-    numFtrRF = wRFSize * wRFSize * dChannel
-    patches = np.zeros((numRdmPtchs, numFtrRF))
-    for i in range(0, numRdmPtchs):
-        r = np.random.randint(0, IMAGE_DIM[0] - wRFSize)
-        c = np.random.randint(0, IMAGE_DIM[1] - wRFSize)
-        patch = np.reshape(trainX[np.mod(i, trainX.shape[0])],
-                           IMAGE_DIM, order='F')
-        patch = patch[r:r + wRFSize, c:c + wRFSize]
-        patches[i] = patch.flatten(order='F')
-    return patches
 
-def cmptTriangleActivation(patches, centroids):
-    ''' compute 'triangle' activation function when extracting the features
-    when using the method of KMeans'''
-    xx = np.sum(patches**2, axis=1)  # X^2; dim is
-    cc = np.sum(centroids**2, axis=1)
-    xc = np.dot(patches, centroids.T)
-    z = np.sqrt(cc + (xx.T - 2 * xc.T).T)  # distances
-    mu = np.mean(z, axis=1)  # average distance to centroids for each patch
-    return np.maximum((mu - z.T).T, 0)
-
-
-train_X = np.load("train_X_phoebe.npy")
-train_Y = np.load("train_Y_phoebe.npy")
-validation_X = np.load("validation_X_phoebe.npy")
-validation_Y = np.load("validation_Y_phoebe.npy")
-test_X = np.load("test_X_phoebe.npy")
-test_Y = np.load("test_Y_phoebe.npy")
+train_X = np.load("train_X.npy")
+train_Y = np.load("train_Y.npy")
+validation_X = np.load("validation_X.npy")
+validation_Y = np.load("validation_Y.npy")
+test_X = np.load("test_X.npy")
+test_Y = np.load("test_Y.npy")
 
 
 from scipy.stats import multivariate_normal as mvn
-sigmas = np.load("./GMM/patches5000/GMM_sigmas.npy")
+sigmas = np.load("GMM_sigmas.npy")
 print ("sigmas: ", sigmas.shape)
-centroids = np.load("./GMM/patches5000/GMM_mus.npy")
+centroids = np.load("GMM_mus.npy")
 print ("centroids: ", centroids.shape)
-mus = np.load("./GMM/patches5000/GMM_mus.npy")
+mus = np.load("GMM_mus.npy")
 features = centroids.shape[0]
 
 dChannel = 3  # d, the number of channel, 3 for color images
@@ -256,6 +232,6 @@ validation_scores = np.asarray(validation_scores)
 test_scores = np.asarray(test_scores)
 
 
-np.save("train_scores100.npy", train_scores)
-np.save("validation_scores100.npy", validation_scores)
-np.save("test_scores100.npy", test_scores)
+np.save("train_scores.npy", train_scores)
+np.save("validation_scores.npy", validation_scores)
+np.save("test_scores.npy", test_scores)

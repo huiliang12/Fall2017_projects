@@ -1,4 +1,3 @@
-# EECS 545 - Group Project
 # @ Author: Hui(Phoebe) Liang
 # Feature Learning using Gaussian Mixture Model
 
@@ -104,16 +103,9 @@ def em_gmm(observations, _pis, _mus, _sigmas, tol=0.01, iterations=1000):
     return new_log_like, pis, mus, sigmas, posterior_mat, iterations_list, loss
 
 
-patches_whiten = np.load("./GMM/patches12000/patches_whiten_phoebe12000.npy")
-#patches_whiten = np.load("./GMM/patches12000/patches_normal_phoebe12000.npy")
-
-patches_labels = np.load("./GMM/patches12000/kmeans_labels_phoebe300.npy")
-centers = np.load("./GMM/patches12000/kmeans_center_phoebe300.npy")
-#centers = np.random.random((200, 108))
-
-# unique_labels, counts_labels = np.unique(patches_labels, return_counts=True)
-# pis = counts_labels
-# pis_array = pis.astype(float)/float(pis.sum())
+patches_whiten = np.load("patches_whiten.npy")
+patches_labels = np.load("kmeans_labels.npy")
+centers = np.load("kmeans_center.npy")
 
 len_of_latent = centers.shape[0]
 init_prob = 1.0/float(len_of_latent)
@@ -137,7 +129,7 @@ plt.plot(loss, label='Train')
 plt.xlabel('Iteration')
 plt.ylabel('log likelihood')
 plt.legend()
-plt.savefig('losses300.png')
+plt.savefig('losses.png')
 plt.show()
 
 np.save("GMM_loglike.npy", log_like)

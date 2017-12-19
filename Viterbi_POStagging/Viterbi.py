@@ -1,5 +1,4 @@
 # Name: HUI LIANG
-# Unique: LIANGHUI
 
 import argparse
 import sys
@@ -30,18 +29,13 @@ def line_processor(sequence):
     for item in items: 
         if "/" in item: 
             word, tag = item.rsplit("/", 1)
-            # if tag == 'CD':
-            #     # treating all numbers as the same word. 
-            #     word = 'Cardinal number'
         else:
             # one word in train.large file has no tag
             word, tag = item, 'CD'
             word = 'Cardinal number'
         tags_list.append(tag)
         tags = tag.split("|")
-
         num_tags = len(tags)
-
 
         if num_tags == 1:
             tag = tags[0]
@@ -144,29 +138,24 @@ tags_index = [index for index, tag in enumerate(tags)]
 
 ## All tags in tag_frequency
 all_states = bigram_dict.keys()
-#print len(all_states)
-#print all_states[:10]
+
 
 # Create tag pairs for all possible tag combinations
 tags_pairs = [(x, y) for x in tags for y in tags]
-#print tags_pairs[:10]
-#print len(tags_pairs)
+
 
 # print the difference between the two tags
 add_one = list(set(tags_pairs) - set(all_states))
-#print add_one[:10]
-#print len(add_one)
+
 
 for each in add_one:
     if each not in bigram_dict:
         bigram_dict[each] = 1
 
-#print len(bigram_dict)
 
 #################################################
 
 def init_matrix(num_words, num_tags):
-    #print "words: ", num_words, "tags: ", num_tags
     # first create a matrix of counts
     initial_prob = np.zeros((num_tags,))
     trans_prob = np.zeros((num_tags, num_tags))
@@ -179,7 +168,6 @@ def init_matrix(num_words, num_tags):
             if (T1, T2) in bigram_dict:
                 trans_prob[T1_index, T2_index] = bigram_dict[(T1, T2)]
             else: 
-                #print (T1, T2)
                 trans_prob[T1_index, T2_index] = 0
 
     for T_index in range(num_tags):
@@ -262,15 +250,11 @@ with open(test_file, 'r') as file2:
 
 
         word_idx = encode(idx_list, "word")
-        #print word_idx
         sent_length = len(word_idx)
-        #print sent_length
         correct_idx = encode(correct_tags, "tags")
-        #print correct_idx
 
         viterbi = np.zeros((num_tags, sent_length))
         backpt = np.zeros((num_tags, sent_length))
-        #initial_prob = np.reshape(initial_prob, (-1,))
 
         viterbi[:, 0] = np.multiply(initial_prob, obs_prob[:, word_idx[0]])
 
@@ -288,11 +272,8 @@ with open(test_file, 'r') as file2:
 
         wrong = sum(1 for i, j in zip(seq, correct_idx) if i != j)
         incorrect_cnt += wrong
-        #print "incorrect_cnt: ", wrong, "at line ", count
         correct_cnt += len(correct_idx)
-        #print "correct_cnt: ", correct_cnt
 
-        # print out exact tags
         tag_decode = decode(seq)
         if len(tag_decode) != len(idx_list):
             print "predictions less than count"
@@ -351,7 +332,6 @@ with open(test_file, 'r') as file2:
         correct_cnt += len(correct_tags)
 
 file2.close()
-# print "total count: ", correct_cnt, " incorrect_cnt: ", incorrect_cnt
 print "Baseline_accuracy on test data: ", '{:.1%}'.format(float(correct_cnt - incorrect_cnt)/float(correct_cnt))
 
 
