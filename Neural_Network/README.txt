@@ -1,0 +1,1 @@
+In this exercise, I implemented a two-layer neural network and backpropagate the cross-entropy loss function through the network and update the weights using Gradient Descent. 

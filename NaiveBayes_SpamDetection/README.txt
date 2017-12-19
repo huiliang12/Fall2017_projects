@@ -1,0 +1,1 @@
+In this project, I implemented Naive Bayes classifier for spam classification, using the multinomial event model and Laplace smoothing (add 1 to the counts).
